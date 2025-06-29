@@ -44,8 +44,6 @@ Acesse a aplicação em funcionamento através do GitHub Pages:
 ## 👨‍💻 Autor
 
 **Jônatas de Aquino Rocha**
-Analista de Pessoal e Treinamento
-Câmara Municipal de Jacareí
 
 ---
 
