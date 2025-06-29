@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metrônomo Digital</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Animação de pulso para o indicador visual */
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+        }
+        .beat-pulse {
+            animation: pulse 0.2s ease-in-out;
+        }
+        /* Estilização customizada para o slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            cursor: pointer;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            background: #4a5568; /* gray-700 */
+            border-radius: 9999px;
+        }
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            background: #4a5568; /* gray-700 */
+            border-radius: 9999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px; /* Centraliza o thumb na track */
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #2dd4bf; /* teal-400 */
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #2dd4bf; /* teal-400 */
+        }
+        /* Estilo para os botões de controle de compasso */
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            background-color: #4a5568; /* gray-700 */
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.25rem;
+            color: white;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .control-btn:hover {
+            background-color: #718096; /* gray-600 */
+        }
+        .control-btn:active {
+             background-color: #2d3748; /* gray-800 */
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-sm bg-gray-800 rounded-2xl shadow-2xl p-8 space-y-8">
+        
+        <!-- Cabeçalho -->
+        <div class="text-center">
+            <h1 class="text-3xl font-bold text-teal-400">Metrônomo</h1>
+            <p class="text-gray-400 mt-1">Marque seu ritmo com precisão</p>
+        </div>
+
+        <!-- Indicador Visual e Display de BPM -->
+        <div class="relative flex flex-col items-center justify-center">
+            <div id="visual-indicator" class="w-8 h-8 bg-teal-500 rounded-full mb-4 transition-all duration-100 opacity-70"></div>
+            <div id="bpm-display" class="text-7xl font-black tracking-tighter">120</div>
+            <span class="text-gray-400 font-medium">BPM</span>
+        </div>
+
+        <!-- Controles -->
+        <div class="space-y-6">
+            <!-- Seletor de Compasso Dinâmico -->
+            <div class="flex items-center justify-center space-x-6 text-center">
+                <button id="decrease-beats" class="control-btn">-</button>
+                <div>
+                    <div id="beats-display" class="text-3xl font-bold w-24">4 / 4</div>
+                    <div class="text-sm text-gray-400">Compasso</div>
+                </div>
+                <button id="increase-beats" class="control-btn">+</button>
+            </div>
+
+            <!-- Slider de BPM -->
+            <div>
+                <label for="bpm-slider" class="sr-only">Ajustar BPM</label>
+                <input id="bpm-slider" type="range" min="40" max="240" value="120" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            </div>
+
+            <!-- Botão de Start/Stop -->
+            <button id="start-stop-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all duration-200 ease-in-out transform hover:scale-105 shadow-lg">
+                Iniciar
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Elementos do DOM ---
+        const bpmDisplay = document.getElementById('bpm-display');
+        const bpmSlider = document.getElementById('bpm-slider');
+        const startStopBtn = document.getElementById('start-stop-btn');
+        const visualIndicator = document.getElementById('visual-indicator');
+        const decreaseBeatsBtn = document.getElementById('decrease-beats');
+        const increaseBeatsBtn = document.getElementById('increase-beats');
+        const beatsDisplay = document.getElementById('beats-display');
+
+        // --- Estado do Metrônomo ---
+        let bpm = 120;
+        let isPlaying = false;
+        let timerId = null;
+        let beatsPerMeasure = 4; // Padrão 4/4
+        let currentBeat = 0;
+
+        // --- Configuração de Áudio com Tone.js ---
+        // NOVO: Sintetizador para um som mais agudo e clássico, como um metrônomo analógico.
+        const synth = new Tone.Synth({
+            oscillator: {
+                type: 'triangle' // Uma onda mais limpa e aguda.
+            },
+            envelope: {
+                attack: 0.005,
+                decay: 0.1,
+                sustain: 0.01,
+                release: 0.1
+            }
+        }).toDestination();
+        // Aumenta um pouco o volume para garantir que o clique seja nítido.
+        synth.volume.value = 5;
+
+
+        // --- Funções ---
+
+        /**
+         * Toca o som do clique e aciona o indicador visual.
+         */
+        function playClick() {
+            currentBeat = (currentBeat % beatsPerMeasure) + 1;
+
+            if (beatsPerMeasure > 1 && currentBeat === 1) {
+                // Batida 1 (acento): Nota mais alta para o acento.
+                synth.triggerAttackRelease('A5', '32n', Tone.now());
+                visualIndicator.classList.add('bg-amber-400');
+                visualIndicator.classList.remove('bg-teal-500');
+            } else {
+                // Outras batidas: Nota padrão, mais aguda que a versão anterior.
+                synth.triggerAttackRelease('C5', '32n', Tone.now());
+                visualIndicator.classList.add('bg-teal-500');
+                visualIndicator.classList.remove('bg-amber-400');
+            }
+            
+            visualIndicator.classList.add('beat-pulse');
+            setTimeout(() => {
+                visualIndicator.classList.remove('beat-pulse');
+            }, 200);
+        }
+
+        /**
+         * Inicia ou para o metrônomo.
+         */
+        function toggleMetronome() {
+            isPlaying = !isPlaying;
+            if (isPlaying) {
+                Tone.start();
+                startStopBtn.textContent = 'Parar';
+                startStopBtn.classList.replace('bg-teal-500', 'bg-red-500');
+                startStopBtn.classList.replace('hover:bg-teal-600', 'hover:bg-red-600');
+                
+                currentBeat = 0;
+                const interval = 60000 / bpm;
+                timerId = setInterval(playClick, interval);
+                playClick();
+            } else {
+                startStopBtn.textContent = 'Iniciar';
+                startStopBtn.classList.replace('bg-red-500', 'bg-teal-500');
+                startStopBtn.classList.replace('hover:bg-red-600', 'hover:bg-teal-600');
+                clearInterval(timerId);
+                timerId = null;
+            }
+        }
+        
+        /**
+         * Atualiza o BPM com base no valor do slider.
+         */
+        function updateBpm(e) {
+            bpm = e.target.value;
+            bpmDisplay.textContent = bpm;
+            if (isPlaying) {
+                clearInterval(timerId);
+                const newInterval = 60000 / bpm;
+                timerId = setInterval(playClick, newInterval);
+            }
+        }
+
+        /**
+         * Atualiza o display do compasso.
+         */
+        function updateBeatsDisplay() {
+            if (beatsPerMeasure === 1) {
+                beatsDisplay.textContent = 'Off'; // Mostra 'Off' quando não há acento
+            } else {
+                beatsDisplay.textContent = `${beatsPerMeasure} / 4`;
+            }
+        }
+
+        // --- Event Listeners ---
+        startStopBtn.addEventListener('click', toggleMetronome);
+        bpmSlider.addEventListener('input', updateBpm);
+
+        // Listeners para os botões de controle de compasso
+        decreaseBeatsBtn.addEventListener('click', () => {
+            if (beatsPerMeasure > 1) { // Limite mínimo de 1
+                beatsPerMeasure--;
+                updateBeatsDisplay();
+            }
+        });
+
+        increaseBeatsBtn.addEventListener('click', () => {
+            if (beatsPerMeasure < 12) { // Limite máximo de 12 (arbitrário)
+                beatsPerMeasure++;
+                updateBeatsDisplay();
+            }
+        });
+
+    </script>
+</body>
+</html>
+
