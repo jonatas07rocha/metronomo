@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- Phosphor Icons CDN -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Tone.js CDN - CORREÇÃO: Adicionado o script que estava em falta -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥁</text></svg>">
     <style>
@@ -279,12 +281,12 @@
         synth.volume.value = 0;
 
         const affiliateProducts = [
-            { name: 'Afinador de Clip Cromático', description: 'Para garantir que seu instrumento esteja sempre no tom certo.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_992699-MLB53883321943_022023-F.webp', link: 'https://mercadolivre.com/sec/1gGqwoy' },
-            { name: 'Suporte de Partitura', description: 'Mantenha suas partituras e tablaturas na altura ideal.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_824982-MLB50382025061_062022-F.webp', link: 'https://www.mercadolivre.com.br/suporte-para-partitura-stay-11201-preto/p/MLB15147493' },
-            { name: 'Fone de Ouvido de Estúdio', description: 'Ouça cada detalhe da sua prática e gravações com clareza.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_972365-MLU73835693699_012024-F.webp', link: 'https://www.mercadolivre.com.br/fone-de-ouvido-on-ear-sem-fio-jbl-tune-520bt-preto/p/MLB22949747' },
-            { name: 'Pad de Estudo para Bateria', description: 'Pratique seus rudimentos e ritmo em qualquer lugar.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_884901-MLB50382025061_062022-F.webp', link: 'https://www.mercadolivre.com.br/pad-de-estudo-torelli-tam100-10-polegadas-em-eva-com-base-em-madeira/p/MLB15147494' },
-            { name: 'Interface de Áudio', description: 'Grave seus instrumentos no computador com qualidade profissional.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_788533-MLB53883321943_022023-F.webp', link: 'https://www.mercadolivre.com.br/interface-de-audio-behringer-umc22/p/MLB15147495' },
-            { name: 'Livro de Teoria Musical', description: 'Aprofunde seus conhecimentos e evolua como músico.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_783884-MLB50872336262_072022-F.webp', link: 'https://www.mercadolivre.com.br/livro-teoria-da-musica-bohumi-med/p/MLB15147496' }
+            { name: 'Afinador de Clip Cromático', description: 'Para garantir que seu instrumento esteja sempre no tom certo.', image: 'https://http2.mlstatic.com/D_NQ_NP_942963-MLA79959043359_102024-O.webp', link: 'https://mercadolivre.com/sec/2MgzoB2' },
+            { name: 'Suporte de Partitura', description: 'Mantenha suas partituras e tablaturas na altura ideal.', image: 'https://http2.mlstatic.com/D_NQ_NP_668310-MLU77264201964_072024-O.webp', link: 'https://mercadolivre.com/sec/1ZN53C7' },
+            { name: 'Fone de Ouvido de Estúdio', description: 'Ouça cada detalhe da sua prática e gravações com clareza.', image: 'https://http2.mlstatic.com/D_NQ_NP_935639-MLU77355638875_062024-O.webp', link: 'https://mercadolivre.com/sec/2wKnrEc' },
+            { name: 'Pad de Estudo para Bateria', description: 'Pratique seus rudimentos e ritmo em qualquer lugar.', image: 'https://http2.mlstatic.com/D_NQ_NP_614371-MLU74223978136_022024-O.webp', link: 'https://mercadolivre.com/sec/2w3ww1A' },
+            { name: 'Interface de Áudio', description: 'Grave seus instrumentos no computador com qualidade profissional.', image: 'https://http2.mlstatic.com/D_NQ_NP_984683-MLU73692405967_122023-O.webp', link: 'https://mercadolivre.com/sec/1qhBYSN' },
+            { name: 'Livro de Teoria Musical', description: 'Aprofunde seus conhecimentos e evolua como músico.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_813896-MLB44670352341_012021-F.webp', link: 'https://mercadolivre.com/sec/2pM1YpE' }
         ];
 
         // --- Funções ---
@@ -325,7 +327,6 @@
                 toggleBtnIcon.className = 'ph-bold ph-play';
                 toggleBtnText.textContent = 'Iniciar';
                 currentBeat = 0;
-                 // Reset visual state when stopped
                 const beatDots = visualIndicatorWrapper.children;
                 for (let i = 0; i < beatDots.length; i++) {
                     beatDots[i].classList.remove('active', 'accent');
