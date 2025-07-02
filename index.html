@@ -1,134 +1,249 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metrônomo Digital</title>
+    <title>Metrônomo Digital Profissional</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <!-- Favicon (emoji) adicionado aqui -->
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons CDN -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥁</text></svg>">
     <style>
+        :root {
+            --bg-color: #121826;
+            --surface-color: #1A202C;
+            --panel-color: #111827;
+            --primary-color: #38BDF8;
+            --green-color: #34D399;
+            --red-color: #F87171;
+            --text-color: #E5E7EB;
+            --text-muted-color: #9CA3AF;
+        }
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
         }
-        /* Animação de pulso para o indicador visual */
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-                opacity: 0.7;
-            }
-            50% {
-                transform: scale(1.1);
-                opacity: 1;
-            }
-        }
-        .beat-pulse {
-            animation: pulse 0.2s ease-in-out;
-        }
-        /* Estilização customizada para o slider */
-        input[type=range] {
-            -webkit-appearance: none;
-            appearance: none;
+        .metronome-container {
             width: 100%;
-            cursor: pointer;
-            background: transparent;
+            max-width: 420px;
+            background-color: var(--surface-color);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            background: #4a5568; /* gray-700 */
-            border-radius: 9999px;
+
+        /* --- Painel Principal do Visor --- */
+        .main-display-panel {
+            background-color: var(--panel-color);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.2);
+            text-align: center;
         }
-        input[type=range]::-moz-range-track {
-            width: 100%;
-            height: 8px;
-            background: #4a5568; /* gray-700 */
-            border-radius: 9999px;
+        #bpm-display {
+            font-size: 7rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--text-color);
+            transition: color 0.3s;
         }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            margin-top: -6px; /* Centraliza o thumb na track */
-            width: 20px;
-            height: 20px;
-            background: #ffffff;
+        #visual-indicator-wrapper {
+            height: 24px;
+            margin-top: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .beat-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #374151;
             border-radius: 50%;
-            border: 2px solid #2dd4bf; /* teal-400 */
+            transition: all 0.1s ease-in-out;
         }
-        input[type=range]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #ffffff;
-            border-radius: 50%;
-            border: 2px solid #2dd4bf; /* teal-400 */
+        .beat-dot.active {
+            background-color: var(--primary-color);
+            transform: scale(1.25);
         }
-        /* Estilo para os botões de controle de compasso */
-        .control-btn {
+        .beat-dot.accent {
+            background-color: var(--orange-color);
+            transform: scale(1.5);
+        }
+
+        /* --- Controles --- */
+        .controls-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .control-label {
+            font-weight: 600;
+            color: var(--text-muted-color);
+        }
+        .control-value {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+        .circle-btn {
             width: 44px;
             height: 44px;
-            background-color: #4a5568; /* gray-700 */
+            background-color: #374151;
             border-radius: 50%;
             font-weight: bold;
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             color: white;
             transition: background-color 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
+            border: none;
+            cursor: pointer;
         }
-        .control-btn:hover {
-            background-color: #718096; /* gray-600 */
+        .circle-btn:hover { background-color: #4B5563; }
+        
+        input[type=range] {
+            -webkit-appearance: none; appearance: none;
+            width: 100%; cursor: pointer; background: transparent;
         }
-        .control-btn:active {
-             background-color: #2d3748; /* gray-800 */
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 8px; background: var(--panel-color); border-radius: 9999px;
         }
+        input[type=range]::-moz-range-track {
+            height: 8px; background: var(--panel-color); border-radius: 9999px;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            margin-top: -6px; width: 20px; height: 20px;
+            background: var(--primary-color); border-radius: 50%;
+        }
+        input[type=range]::-moz-range-thumb {
+            width: 20px; height: 20px; background: var(--primary-color); border-radius: 50%; border: none;
+        }
+
+        /* --- Botões de Ação --- */
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 2rem; }
+        .action-button {
+            background-color: #374151; color: var(--text-color); border: none;
+            border-radius: 0.75rem; padding: 1rem; font-size: 1rem; font-weight: 600;
+            cursor: pointer; transition: all 0.2s ease-in-out;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+        }
+        .action-button i { font-size: 1.25rem; }
+        .action-button:hover { filter: brightness(1.2); }
+        #start-stop-btn { grid-column: 1 / -1; background-color: var(--primary-color); color: var(--surface-color); }
+        #start-stop-btn.stop-mode { background-color: var(--red-color); }
+
+        /* --- Seção de Afiliados --- */
+        .affiliate-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #374151; }
+        .product-card {
+            background-color: var(--panel-color); border-radius: 0.75rem; overflow: hidden;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #374151; display: flex; flex-direction: column;
+        }
+        .product-card:hover {
+            transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.1);
+            border-color: var(--primary-color);
+        }
+        .product-card-image-wrapper { width: 100%; padding-top: 100%; position: relative; background-color: #ffffff; }
+        .product-card-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
+        .product-card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
+        /* --- Modal de Ajuda --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center;
+            z-index: 100; opacity: 0; visibility: hidden; transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        .modal-content {
+            background-color: var(--surface-color); padding: 2rem; border-radius: 1.5rem;
+            width: 90%; max-width: 500px; transform: scale(0.9); transition: all 0.3s ease-in-out;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+        .modal-content h2 { color: var(--primary-color); margin-bottom: 1rem; }
+        .modal-content ul { list-style-position: inside; text-align: left; }
+        .modal-content li { margin-bottom: 0.5rem; }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
-
-    <div class="w-full max-w-sm bg-gray-800 rounded-2xl shadow-2xl p-8 space-y-8">
+<body>
+    <div class="metronome-container">
+        <h1 class="text-2xl font-bold text-center mb-4">Metrônomo Digital</h1>
         
-        <!-- Cabeçalho -->
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-teal-400">Metrônomo</h1>
-            <p class="text-gray-400 mt-1">Marque seu ritmo com precisão</p>
+        <div class="main-display-panel">
+            <div id="bpm-display">120</div>
+            <div class="text-sm font-medium text-gray-400">BATIDAS POR MINUTO</div>
+            <div id="visual-indicator-wrapper"></div>
         </div>
 
-        <!-- Indicador Visual e Display de BPM -->
-        <div class="relative flex flex-col items-center justify-center">
-            <div id="visual-indicator" class="w-8 h-8 bg-teal-500 rounded-full mb-4 transition-all duration-100 opacity-70"></div>
-            <div id="bpm-display" class="text-7xl font-black tracking-tighter">120</div>
-            <span class="text-gray-400 font-medium">BPM</span>
-        </div>
-
-        <!-- Controles -->
-        <div class="space-y-6">
-            <!-- Seletor de Compasso Dinâmico -->
-            <div class="flex items-center justify-center space-x-6 text-center">
-                <button id="decrease-beats" class="control-btn">-</button>
-                <div>
-                    <div id="beats-display" class="text-3xl font-bold w-24">4 / 4</div>
-                    <div class="text-sm text-gray-400">Compasso</div>
+        <div class="controls-grid">
+            <div class="control-group">
+                <span class="control-label">BPM</span>
+                <input id="bpm-slider" type="range" min="40" max="240" value="120" class="w-48">
+            </div>
+            <div class="control-group">
+                <span class="control-label">Compasso</span>
+                <div class="flex items-center gap-4">
+                    <button id="decrease-beats" class="circle-btn">-</button>
+                    <span id="beats-display" class="control-value w-12 text-center">4/4</span>
+                    <button id="increase-beats" class="circle-btn">+</button>
                 </div>
-                <button id="increase-beats" class="control-btn">+</button>
             </div>
+        </div>
 
-            <!-- Slider de BPM -->
-            <div>
-                <label for="bpm-slider" class="sr-only">Ajustar BPM</label>
-                <input id="bpm-slider" type="range" min="40" max="240" value="120" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-            </div>
-
-            <!-- Botão de Start/Stop -->
-            <button id="start-stop-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-gray-900 font-bold py-4 px-4 rounded-xl transition-all duration-200 ease-in-out transform hover:scale-105 shadow-lg">
-                Iniciar
+        <div class="action-buttons">
+            <button id="start-stop-btn" class="action-button">
+                <i class="ph-bold ph-play"></i>
+                <span>Iniciar</span>
+            </button>
+            <button id="help-btn" class="action-button">
+                <i class="ph-bold ph-question"></i>
+                <span>Ajuda</span>
+            </button>
+            <button id="share-btn" class="action-button">
+                <i class="ph-bold ph-share-network"></i>
+                <span>Compartilhar</span>
             </button>
         </div>
+        
+        <div class="affiliate-section">
+            <h2 class="text-lg font-bold text-center mb-1 text-sky-400">Acessórios para Estudo</h2>
+            <p class="text-center text-sm text-gray-400 mb-4">Uma seleção de itens úteis para sua prática musical.</p>
+            <div id="affiliate-products" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
+            <p class="text-center text-xs text-gray-500 mt-4">Ao comprar através dos nossos links, você apoia este projeto sem custo adicional. Obrigado!</p>
+        </div>
+    </div>
 
+    <div id="help-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold">Como Usar o Metrônomo</h2>
+            <ul>
+                <li><strong>BPM:</strong> Use o slider ou os botões para ajustar a velocidade (Batidas Por Minuto).</li>
+                <li><strong>Compasso:</strong> Defina o número de batidas por compasso. A primeira batida de cada compasso terá um som e cor diferentes para facilitar a marcação.</li>
+                <li><strong>Indicador Visual:</strong> Os círculos no topo pulsarão a cada batida, ajudando você a manter o ritmo mesmo com o som desligado.</li>
+                <li><strong>Iniciar/Parar:</strong> Use o botão principal para começar e parar a contagem.</li>
+            </ul>
+            <button id="close-modal-btn" class="action-button" style="margin-top: 1.5rem; background-color: var(--primary-color); color: var(--surface-color);">Entendi</button>
+        </div>
     </div>
 
     <script>
@@ -136,128 +251,165 @@
         const bpmDisplay = document.getElementById('bpm-display');
         const bpmSlider = document.getElementById('bpm-slider');
         const startStopBtn = document.getElementById('start-stop-btn');
-        const visualIndicator = document.getElementById('visual-indicator');
+        const toggleBtnIcon = startStopBtn.querySelector('i');
+        const toggleBtnText = startStopBtn.querySelector('span');
+        const visualIndicatorWrapper = document.getElementById('visual-indicator-wrapper');
         const decreaseBeatsBtn = document.getElementById('decrease-beats');
         const increaseBeatsBtn = document.getElementById('increase-beats');
         const beatsDisplay = document.getElementById('beats-display');
+        const helpBtn = document.getElementById('help-btn');
+        const shareBtn = document.getElementById('share-btn');
+        const helpModal = document.getElementById('help-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const affiliateContainer = document.getElementById('affiliate-products');
 
         // --- Estado do Metrônomo ---
         let bpm = 120;
         let isPlaying = false;
-        let timerId = null;
-        let beatsPerMeasure = 4; // Padrão 4/4
+        let beatsPerMeasure = 4;
         let currentBeat = 0;
+        let scheduler = null;
 
         // --- Configuração de Áudio com Tone.js ---
-        // NOVO: Sintetizador para um som mais agudo e clássico, como um metrônomo analógico.
-        const synth = new Tone.Synth({
-            oscillator: {
-                type: 'triangle' // Uma onda mais limpa e aguda.
-            },
-            envelope: {
-                attack: 0.005,
-                decay: 0.1,
-                sustain: 0.01,
-                release: 0.1
-            }
+        const synth = new Tone.MembraneSynth({
+            pitchDecay: 0.01,
+            octaves: 10,
+            envelope: { attack: 0.001, decay: 0.2, sustain: 0.01, release: 0.2 }
         }).toDestination();
-        // Aumenta um pouco o volume para garantir que o clique seja nítido.
-        synth.volume.value = 5;
+        synth.volume.value = 0;
 
+        const affiliateProducts = [
+            { name: 'Afinador de Clip Cromático', description: 'Para garantir que seu instrumento esteja sempre no tom certo.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_992699-MLB53883321943_022023-F.webp', link: 'https://mercadolivre.com/sec/1gGqwoy' },
+            { name: 'Suporte de Partitura', description: 'Mantenha suas partituras e tablaturas na altura ideal.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_824982-MLB50382025061_062022-F.webp', link: 'https://www.mercadolivre.com.br/suporte-para-partitura-stay-11201-preto/p/MLB15147493' },
+            { name: 'Fone de Ouvido de Estúdio', description: 'Ouça cada detalhe da sua prática e gravações com clareza.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_972365-MLU73835693699_012024-F.webp', link: 'https://www.mercadolivre.com.br/fone-de-ouvido-on-ear-sem-fio-jbl-tune-520bt-preto/p/MLB22949747' },
+            { name: 'Pad de Estudo para Bateria', description: 'Pratique seus rudimentos e ritmo em qualquer lugar.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_884901-MLB50382025061_062022-F.webp', link: 'https://www.mercadolivre.com.br/pad-de-estudo-torelli-tam100-10-polegadas-em-eva-com-base-em-madeira/p/MLB15147494' },
+            { name: 'Interface de Áudio', description: 'Grave seus instrumentos no computador com qualidade profissional.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_788533-MLB53883321943_022023-F.webp', link: 'https://www.mercadolivre.com.br/interface-de-audio-behringer-umc22/p/MLB15147495' },
+            { name: 'Livro de Teoria Musical', description: 'Aprofunde seus conhecimentos e evolua como músico.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_783884-MLB50872336262_072022-F.webp', link: 'https://www.mercadolivre.com.br/livro-teoria-da-musica-bohumi-med/p/MLB15147496' }
+        ];
 
         // --- Funções ---
-
-        /**
-         * Toca o som do clique e aciona o indicador visual.
-         */
-        function playClick() {
-            currentBeat = (currentBeat % beatsPerMeasure) + 1;
-
-            if (beatsPerMeasure > 1 && currentBeat === 1) {
-                // Batida 1 (acento): Nota mais alta para o acento.
-                synth.triggerAttackRelease('A5', '32n', Tone.now());
-                visualIndicator.classList.add('bg-amber-400');
-                visualIndicator.classList.remove('bg-teal-500');
-            } else {
-                // Outras batidas: Nota padrão, mais aguda que a versão anterior.
-                synth.triggerAttackRelease('C5', '32n', Tone.now());
-                visualIndicator.classList.add('bg-teal-500');
-                visualIndicator.classList.remove('bg-amber-400');
+        function updateBeatsDisplay() {
+            beatsDisplay.textContent = `${beatsPerMeasure}/4`;
+            visualIndicatorWrapper.innerHTML = '';
+            for (let i = 0; i < beatsPerMeasure; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('beat-dot');
+                visualIndicatorWrapper.appendChild(dot);
             }
+        }
+
+        function playClick(time) {
+            const beatDots = visualIndicatorWrapper.children;
+            const note = (currentBeat % beatsPerMeasure === 0) ? 'C4' : 'C3';
+            const dot = beatDots[currentBeat % beatsPerMeasure];
             
-            visualIndicator.classList.add('beat-pulse');
-            setTimeout(() => {
-                visualIndicator.classList.remove('beat-pulse');
-            }, 200);
+            synth.triggerAttack(note, time);
+            
+            Tone.Draw.schedule(() => {
+                if (!isPlaying) return;
+                for (let i = 0; i < beatDots.length; i++) {
+                    beatDots[i].classList.toggle('accent', i === currentBeat % beatsPerMeasure && currentBeat % beatsPerMeasure === 0);
+                    beatDots[i].classList.toggle('active', i === currentBeat % beatsPerMeasure && currentBeat % beatsPerMeasure !== 0);
+                }
+            }, time);
+
+            currentBeat++;
         }
 
-        /**
-         * Inicia ou para o metrônomo.
-         */
-        function toggleMetronome() {
-            isPlaying = !isPlaying;
+        async function toggleMetronome() {
             if (isPlaying) {
-                Tone.start();
-                startStopBtn.textContent = 'Parar';
-                startStopBtn.classList.replace('bg-teal-500', 'bg-red-500');
-                startStopBtn.classList.replace('hover:bg-teal-600', 'hover:bg-red-600');
-                
+                isPlaying = false;
+                await Tone.Transport.stop();
+                await Tone.Transport.cancel();
+                toggleBtn.classList.remove('stop-mode');
+                toggleBtnIcon.className = 'ph-bold ph-play';
+                toggleBtnText.textContent = 'Iniciar';
                 currentBeat = 0;
-                const interval = 60000 / bpm;
-                timerId = setInterval(playClick, interval);
-                playClick();
+                 // Reset visual state when stopped
+                const beatDots = visualIndicatorWrapper.children;
+                for (let i = 0; i < beatDots.length; i++) {
+                    beatDots[i].classList.remove('active', 'accent');
+                }
             } else {
-                startStopBtn.textContent = 'Iniciar';
-                startStopBtn.classList.replace('bg-red-500', 'bg-teal-500');
-                startStopBtn.classList.replace('hover:bg-red-600', 'hover:bg-teal-600');
-                clearInterval(timerId);
-                timerId = null;
+                await Tone.start();
+                isPlaying = true;
+                Tone.Transport.bpm.value = bpm;
+                scheduler = Tone.Transport.scheduleRepeat(playClick, "4n");
+                Tone.Transport.start();
+                toggleBtn.classList.add('stop-mode');
+                toggleBtnIcon.className = 'ph-bold ph-stop';
+                toggleBtnText.textContent = 'Parar';
             }
         }
-        
-        /**
-         * Atualiza o BPM com base no valor do slider.
-         */
+
         function updateBpm(e) {
             bpm = e.target.value;
             bpmDisplay.textContent = bpm;
-            if (isPlaying) {
-                clearInterval(timerId);
-                const newInterval = 60000 / bpm;
-                timerId = setInterval(playClick, newInterval);
-            }
+            Tone.Transport.bpm.value = bpm;
         }
 
-        /**
-         * Atualiza o display do compasso.
-         */
-        function updateBeatsDisplay() {
-            if (beatsPerMeasure === 1) {
-                beatsDisplay.textContent = 'Off'; // Mostra 'Off' quando não há acento
-            } else {
-                beatsDisplay.textContent = `${beatsPerMeasure} / 4`;
-            }
+        function changeBeats(amount) {
+            beatsPerMeasure = Math.max(1, Math.min(12, beatsPerMeasure + amount));
+            updateBeatsDisplay();
+        }
+
+        function displayRandomProducts() {
+            if (!affiliateContainer) return;
+            const shuffled = affiliateProducts.sort(() => 0.5 - Math.random());
+            const selectedProducts = shuffled.slice(0, 3);
+            affiliateContainer.innerHTML = '';
+            selectedProducts.forEach(product => {
+                const cardHTML = `
+                    <a href="${product.link}" target="_blank" rel="noopener noreferrer sponsored" class="product-card block">
+                        <div class="product-card-image-wrapper">
+                            <img src="${product.image}" alt="${product.name}" class="product-card-image" onerror="this.onerror=null;this.src='https://placehold.co/400x400/111827/E5E7EB?text=Imagem+Indisponível';">
+                        </div>
+                        <div class="p-3 product-card-content">
+                            <div>
+                                <h3 class="font-bold text-base text-white truncate">${product.name}</h3>
+                            </div>
+                            <span class="inline-block w-full mt-2 text-center bg-sky-500 text-white text-sm font-semibold px-3 py-2 rounded-md">Ver Oferta</span>
+                        </div>
+                    </a>
+                `;
+                affiliateContainer.innerHTML += cardHTML;
+            });
         }
 
         // --- Event Listeners ---
         startStopBtn.addEventListener('click', toggleMetronome);
         bpmSlider.addEventListener('input', updateBpm);
-
-        // Listeners para os botões de controle de compasso
-        decreaseBeatsBtn.addEventListener('click', () => {
-            if (beatsPerMeasure > 1) { // Limite mínimo de 1
-                beatsPerMeasure--;
-                updateBeatsDisplay();
-            }
+        decreaseBeatsBtn.addEventListener('click', () => changeBeats(-1));
+        increaseBeatsBtn.addEventListener('click', () => changeBeats(1));
+        helpBtn.addEventListener('click', () => helpModal.classList.add('visible'));
+        closeModalBtn.addEventListener('click', () => helpModal.classList.remove('visible'));
+        helpModal.addEventListener('click', (e) => {
+            if (e.target === helpModal) helpModal.classList.remove('visible');
+        });
+        
+        shareBtn.addEventListener('click', async () => {
+            const shareData = {
+                title: document.title,
+                text: 'Marque seu ritmo com precisão usando este metrônomo online!',
+                url: window.location.href,
+            };
+            try {
+                if (navigator.share) {
+                    await navigator.share(shareData);
+                } else {
+                    await navigator.clipboard.writeText(window.location.href);
+                    const originalText = shareBtn.querySelector('span').textContent;
+                    shareBtn.querySelector('span').textContent = 'Copiado!';
+                    setTimeout(() => { shareBtn.querySelector('span').textContent = originalText; }, 2000);
+                }
+            } catch (err) { console.error('Erro ao compartilhar:', err); }
         });
 
-        increaseBeatsBtn.addEventListener('click', () => {
-            if (beatsPerMeasure < 12) { // Limite máximo de 12 (arbitrário)
-                beatsPerMeasure++;
-                updateBeatsDisplay();
-            }
+        // --- Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            updateBeatsDisplay();
+            displayRandomProducts();
         });
-
     </script>
 </body>
 </html>
