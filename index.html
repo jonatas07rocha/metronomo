@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <!-- Phosphor Icons CDN -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Tone.js CDN - CORREÇÃO: Adicionado o script que estava em falta -->
+    <!-- Tone.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥁</text></svg>">
@@ -22,6 +22,7 @@
             --primary-color: #38BDF8;
             --green-color: #34D399;
             --red-color: #F87171;
+            --orange-color: #FBBF24;
             --text-color: #E5E7EB;
             --text-muted-color: #9CA3AF;
         }
@@ -273,12 +274,11 @@
         let scheduler = null;
 
         // --- Configuração de Áudio com Tone.js ---
-        const synth = new Tone.MembraneSynth({
-            pitchDecay: 0.01,
-            octaves: 10,
-            envelope: { attack: 0.001, decay: 0.2, sustain: 0.01, release: 0.2 }
+        const synth = new Tone.Synth({
+            oscillator: { type: 'triangle' },
+            envelope: { attack: 0.005, decay: 0.1, sustain: 0.01, release: 0.1 }
         }).toDestination();
-        synth.volume.value = 0;
+        synth.volume.value = 5;
 
         const affiliateProducts = [
             { name: 'Afinador de Clip Cromático', description: 'Para garantir que seu instrumento esteja sempre no tom certo.', image: 'https://http2.mlstatic.com/D_NQ_NP_942963-MLA79959043359_102024-O.webp', link: 'https://mercadolivre.com/sec/2MgzoB2' },
@@ -302,10 +302,10 @@
 
         function playClick(time) {
             const beatDots = visualIndicatorWrapper.children;
-            const note = (currentBeat % beatsPerMeasure === 0) ? 'C4' : 'C3';
+            const note = (currentBeat % beatsPerMeasure === 0) ? 'A5' : 'C5';
             const dot = beatDots[currentBeat % beatsPerMeasure];
             
-            synth.triggerAttack(note, time);
+            synth.triggerAttackRelease(note, '32n', time);
             
             Tone.Draw.schedule(() => {
                 if (!isPlaying) return;
@@ -323,7 +323,7 @@
                 isPlaying = false;
                 await Tone.Transport.stop();
                 await Tone.Transport.cancel();
-                toggleBtn.classList.remove('stop-mode');
+                startStopBtn.classList.remove('stop-mode');
                 toggleBtnIcon.className = 'ph-bold ph-play';
                 toggleBtnText.textContent = 'Iniciar';
                 currentBeat = 0;
@@ -337,7 +337,7 @@
                 Tone.Transport.bpm.value = bpm;
                 scheduler = Tone.Transport.scheduleRepeat(playClick, "4n");
                 Tone.Transport.start();
-                toggleBtn.classList.add('stop-mode');
+                startStopBtn.classList.add('stop-mode');
                 toggleBtnIcon.className = 'ph-bold ph-stop';
                 toggleBtnText.textContent = 'Parar';
             }
