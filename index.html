@@ -162,21 +162,6 @@
         #start-stop-btn { grid-column: 1 / -1; background-color: var(--primary-color); color: var(--surface-color); }
         #start-stop-btn.stop-mode { background-color: var(--red-color); }
 
-        /* --- Seção de Afiliados --- */
-        .affiliate-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #374151; }
-        .product-card {
-            background-color: var(--panel-color); border-radius: 0.75rem; overflow: hidden;
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            border: 1px solid #374151; display: flex; flex-direction: column;
-        }
-        .product-card:hover {
-            transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(56, 189, 248, 0.1);
-            border-color: var(--primary-color);
-        }
-        .product-card-image-wrapper { width: 100%; padding-top: 100%; position: relative; background-color: #ffffff; }
-        .product-card-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; }
-        .product-card-content { flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-
         /* --- Modal de Ajuda --- */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -233,13 +218,6 @@
                 <span>Compartilhar</span>
             </button>
         </div>
-        
-        <div class="affiliate-section">
-            <h2 class="text-lg font-bold text-center mb-1 text-sky-400">Acessórios para Estudo</h2>
-            <p class="text-center text-sm text-gray-400 mb-4">Uma seleção de itens úteis para sua prática musical.</p>
-            <div id="affiliate-products" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-            <p class="text-center text-xs text-gray-500 mt-4">Ao comprar através dos nossos links, você apoia este projeto sem custo adicional. Obrigado!</p>
-        </div>
     </div>
 
     <div id="help-modal" class="modal-overlay">
@@ -283,7 +261,6 @@
         const shareBtn = document.getElementById('share-btn');
         const helpModal = document.getElementById('help-modal');
         const closeModalBtn = document.getElementById('close-modal-btn');
-        const affiliateContainer = document.getElementById('affiliate-products');
 
         // --- Estado do Metrônomo ---
         let bpm = 120;
@@ -298,15 +275,6 @@
             envelope: { attack: 0.005, decay: 0.1, sustain: 0.01, release: 0.1 }
         }).toDestination();
         synth.volume.value = 5;
-
-        const affiliateProducts = [
-            { name: 'Afinador de Clip Cromático', description: 'Para garantir que seu instrumento esteja sempre no tom certo.', image: 'https://http2.mlstatic.com/D_NQ_NP_942963-MLA79959043359_102024-O.webp', link: 'https://mercadolivre.com/sec/2MgzoB2' },
-            { name: 'Suporte de Partitura', description: 'Mantenha suas partituras e tablaturas na altura ideal.', image: 'https://http2.mlstatic.com/D_NQ_NP_668310-MLU77264201964_072024-O.webp', link: 'https://mercadolivre.com/sec/1ZN53C7' },
-            { name: 'Fone de Ouvido de Estúdio', description: 'Ouça cada detalhe da sua prática e gravações com clareza.', image: 'https://http2.mlstatic.com/D_NQ_NP_935639-MLU77355638875_062024-O.webp', link: 'https://mercadolivre.com/sec/2wKnrEc' },
-            { name: 'Pad de Estudo para Bateria', description: 'Pratique seus rudimentos e ritmo em qualquer lugar.', image: 'https://http2.mlstatic.com/D_NQ_NP_614371-MLU74223978136_022024-O.webp', link: 'https://mercadolivre.com/sec/2w3ww1A' },
-            { name: 'Interface de Áudio', description: 'Grave seus instrumentos no computador com qualidade profissional.', image: 'https://http2.mlstatic.com/D_NQ_NP_984683-MLU73692405967_122023-O.webp', link: 'https://mercadolivre.com/sec/1qhBYSN' },
-            { name: 'Livro de Teoria Musical', description: 'Aprofunde seus conhecimentos e evolua como músico.', image: 'https://http2.mlstatic.com/D_NQ_NP_2X_813896-MLB44670352341_012021-F.webp', link: 'https://mercadolivre.com/sec/2pM1YpE' }
-        ];
 
         // --- Funções ---
         function updateBeatsDisplay() {
@@ -373,29 +341,6 @@
             updateBeatsDisplay();
         }
 
-        function displayRandomProducts() {
-            if (!affiliateContainer) return;
-            const shuffled = affiliateProducts.sort(() => 0.5 - Math.random());
-            const selectedProducts = shuffled.slice(0, 3);
-            affiliateContainer.innerHTML = '';
-            selectedProducts.forEach(product => {
-                const cardHTML = `
-                    <a href="${product.link}" target="_blank" rel="noopener noreferrer sponsored" class="product-card block">
-                        <div class="product-card-image-wrapper">
-                            <img src="${product.image}" alt="${product.name}" class="product-card-image" onerror="this.onerror=null;this.src='https://placehold.co/400x400/111827/E5E7EB?text=Imagem+Indisponível';">
-                        </div>
-                        <div class="p-3 product-card-content">
-                            <div>
-                                <h3 class="font-bold text-base text-white truncate">${product.name}</h3>
-                            </div>
-                            <span class="inline-block w-full mt-2 text-center bg-sky-500 text-white text-sm font-semibold px-3 py-2 rounded-md">Ver Oferta</span>
-                        </div>
-                    </a>
-                `;
-                affiliateContainer.innerHTML += cardHTML;
-            });
-        }
-
         // --- Event Listeners ---
         startStopBtn.addEventListener('click', toggleMetronome);
         bpmSlider.addEventListener('input', updateBpm);
@@ -417,7 +362,14 @@
                 if (navigator.share) {
                     await navigator.share(shareData);
                 } else {
-                    await navigator.clipboard.writeText(window.location.href);
+                    // Fallback para copiar para a área de transferência
+                    const tempInput = document.createElement('input');
+                    tempInput.value = window.location.href;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(tempInput);
+                    
                     const originalText = shareBtn.querySelector('span').textContent;
                     shareBtn.querySelector('span').textContent = 'Copiado!';
                     setTimeout(() => { shareBtn.querySelector('span').textContent = originalText; }, 2000);
@@ -428,7 +380,6 @@
         // --- Inicialização ---
         document.addEventListener('DOMContentLoaded', () => {
             updateBeatsDisplay();
-            displayRandomProducts();
         });
     </script>
 </body>
