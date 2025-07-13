@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metrônomo Digital Profissional</title>
+
+    <!-- PWA e Meta Tags -->
+    <meta name="theme-color" content="#1A202C">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-180x180.png">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -250,6 +256,19 @@
     </div>
 
     <script>
+        // --- Registro do Service Worker ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado com sucesso:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.error('Falha ao registrar o Service Worker:', error);
+                    });
+            });
+        }
+
         // --- Elementos do DOM ---
         const bpmDisplay = document.getElementById('bpm-display');
         const bpmSlider = document.getElementById('bpm-slider');
