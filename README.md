@@ -1,50 +1,50 @@
-# 🎶 Metrônomo Digital
+# 🥁 Metrônomo Digital Profissional
 
-Um metrônomo online simples e intuitivo para ajudar músicos a manter o tempo e o ritmo. Desenvolvido com foco em usabilidade e uma interface limpa.
+**Metrônomo gratuito, online e responsivo, projetado para músicos que buscam precisão no ritmo e praticidade no uso.**
 
-## ✨ Funcionalidades
+Este projeto é um **Progressive Web App (PWA)** que pode ser instalado no celular ou desktop e funciona mesmo offline. Possui feedback visual dinâmico, controle de BPM e compassos personalizáveis com áudio sincronizado, desenvolvido com **Tone.js** e **Tailwind CSS**.
 
-* **Controle de BPM:** Ajuste o andamento (Batidas Por Minuto) de 40 a 240 BPM usando um slider responsivo.
+## 🔧 Funcionalidades
 
-* **Controle de Compasso:** Defina o compasso de 1/4 a 12/4, com um acento visual e sonoro na primeira batida do compasso.
+- Ajuste preciso de BPM (40–240)
+- Controle de compasso (até 12/4)
+- Feedback visual com animações sincronizadas
+- Áudio diferenciado para primeira batida do compasso
+- Interface responsiva com design escuro moderno
+- Funciona offline após o primeiro acesso (PWA)
+- Suporte ao compartilhamento via API ou cópia do link
 
-* **Indicador Visual:** Um círculo que pulsa no ritmo, mudando de cor para indicar a primeira batida do compasso.
+## 🚀 Como usar
 
-* **Sons Claros:** Utiliza a biblioteca Tone.js para gerar sons de clique de alta qualidade, com um som distinto para a primeira batida.
+1. Acesse o site/app (ou abra localmente).
+2. Ajuste o BPM com o controle deslizante.
+3. Defina o compasso usando os botões + e -.
+4. Clique em **Iniciar** para começar.
+5. Use o botão de **Ajuda** para instruções rápidas.
 
-* **Design Responsivo:** Interface adaptável para diferentes tamanhos de tela, desde desktops até dispositivos móveis.
+## 📦 Tecnologias Utilizadas
 
-## 🚀 Demonstração ao Vivo
+- [Tone.js](https://tonejs.github.io/) – Áudio síncrono de alta precisão
+- [Tailwind CSS](https://tailwindcss.com/) – Estilização utilitária
+- [Phosphor Icons](https://phosphoricons.com/) – Ícones vetoriais
+- HTML5, JavaScript
+- Suporte a PWA (Manifest + Service Worker)
 
-Acesse a aplicação em funcionamento através do GitHub Pages:
-<https://jonatas07rocha.github.io/metronomo/>
+## 📁 Estrutura básica
 
-## 💡 Como Usar
+- `index.html`: Página principal com estrutura e lógica
+- `manifest.json`: Configurações PWA
+- `service-worker.js`: Cache offline
+- `icon-180x180.png`: Ícone da aplicação
 
-1.  **Ajuste o BPM:** Arraste o slider para definir o número de batidas por minuto desejado.
+## 💡 Contribuição
 
-2.  **Defina o Compasso:** Use os botões `+` e `-` para ajustar o número de batidas por compasso (por exemplo, 4 para 4/4, 3 para 3/4).
+Sinta-se à vontade para sugerir melhorias, abrir issues ou enviar pull requests!
 
-3.  **Iniciar/Parar:** Clique no botão "Iniciar" para começar o metrônomo. Clique novamente para "Parar".
+## 📄 Licença
 
-4.  **Feedback Visual:** Observe o círculo pulsante. Ele mudará de cor na primeira batida de cada compasso.
-
-## 🛠️ Tecnologias Utilizadas
-
-* **HTML5:** Estrutura da página.
-
-* **CSS3 (Tailwind CSS):** Estilização e responsividade da interface.
-
-* **JavaScript:** Lógica principal da aplicação.
-
-* **Tone.js:** Biblioteca para síntese e manipulação de áudio no navegador, garantindo cliques precisos e de alta qualidade.
-
-* **Google Fonts (Inter):** Tipografia moderna e legível.
-
-## 👨‍💻 Autor
-
-**Jônatas de Aquino Rocha**
+Este projeto está licenciado sob a **MIT License**.
 
 ---
 
-Este projeto é um exemplo de aplicação web simples e funcional, ideal para músicos e estudantes que precisam de uma ferramenta de metrônomo acessível em qualquer lugar.
+Desenvolvido com dedicação para músicos que valorizam o tempo. 🎶
